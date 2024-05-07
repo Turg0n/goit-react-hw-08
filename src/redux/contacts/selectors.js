@@ -1,5 +1,17 @@
-export const selectUser = state => state.auth.user;
-export const selectIsLoading = state => state.auth.isLoading;
-export const selectIsLoggedIn = state => state.auth.isLoggedIn;
-export const selectError = state => state.auth.error;
-export const selectIsRefreshing = state => state.auth.isRefreshing;
+import { createSelector } from '@reduxjs/toolkit';
+import { selectNameFilter } from '../filters/selectors';
+
+export const selectContacts = state => state.contacts.items;
+export const selectIsContactsLoading = state => state.contacts.loading;
+export const selectContactsError = state => state.contacts.error;
+
+export const selectFilteredContacts = createSelector(
+  [selectContacts, selectNameFilter],
+  (contacts, filter) => {
+    return contacts.filter(
+      contact =>
+        contact.name.toLowerCase().includes(filter.toLocaleLowerCase()) ||
+        contact.number.toLowerCase().includes(filter.toLocaleLowerCase())
+    );
+  }
+);

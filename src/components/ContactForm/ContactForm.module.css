@@ -4,12 +4,16 @@
   align-items: center;
   justify-content: center;
   row-gap: 10px;
-  width: 210px;
+  width: 500px;
   border: 1px solid black;
   border-radius: 4px;
   padding: 10px;
   margin-bottom: 20px;
 }
+.formLabel {
+  display: block;
+}
+
 
 .addBtn {
   background-color: #e7e7e7;
@@ -29,4 +33,13 @@
 .alert {
   font-size: 12px;
   color: red;
+}
+.formField {
+  width: 480px;
+  color: #e2e2e2;
+  background-color: #8cabe8;
+  outline: transparent;
+  border: 1px solid #252728;
+  border-radius: 4px;
+  padding: 6px;
 }

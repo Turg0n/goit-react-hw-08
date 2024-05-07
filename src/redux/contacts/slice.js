@@ -1,58 +1,64 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { authInitialState } from '../../const';
-import { register, login, logout, refreshUser } from './operations';
+import { contactsInitialState } from '../../const';
+import {
+  fetchContacts,
+  addContact,
+  deleteContact,
+  editContact,
+} from './operations';
+import { logout } from '../auth/operations';
 
-const handleFulfilled = (state, action) => {
-  state.isLoading = false;
-  state.isLoggedIn = true;
-  state.user = action.payload.user;
-  state.token = action.payload.token;
+const handlePending = state => {
+  state.loading = true;
+  state.error = null;
 };
-
-const handlePending = (state, action) => {
-    state.isLoading = true;
-    state.error = null;
-    if (action.type === 'auth/refresh/pending') {
-      state.isRefreshing = true;
-    }
-  };
 
 const handleRejected = (state, action) => {
-  state.isLoading = false;
+  state.loading = false;
   state.error = action.payload;
-  if (action.type === 'auth/refresh/rejected') {
-    state.isRefreshing = false;
-  }
 };
 
-const authSlice = createSlice({
-  name: 'auth',
-  initialState: authInitialState,
+const contactsSlice = createSlice({
+  name: 'contacts',
+  initialState: contactsInitialState,
   extraReducers: builder => {
     builder
-      .addCase(register.pending, handlePending)
-      .addCase(register.fulfilled, handleFulfilled)
-      .addCase(register.rejected, handleRejected)
-
-      .addCase(login.pending, handlePending)
-      .addCase(login.fulfilled, handleFulfilled)
-      .addCase(login.rejected, handleRejected)
-
-      .addCase(logout.pending, handlePending)
-      .addCase(logout.fulfilled, () => {
-        return authInitialState;
+      .addCase(fetchContacts.pending, handlePending)
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload;
       })
-      .addCase(logout.rejected, handleRejected)
+      .addCase(fetchContacts.rejected, handleRejected)
 
-      .addCase(refreshUser.pending, handlePending)
-      .addCase(refreshUser.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isRefreshing = false;
-        state.isLoggedIn = true;
-        state.user = action.payload;
+      .addCase(addContact.pending, handlePending)
+      .addCase(addContact.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items.push(action.payload);
       })
-      .addCase(refreshUser.rejected, handleRejected);
+      .addCase(addContact.rejected, handleRejected)
+
+      .addCase(deleteContact.pending, handlePending)
+      .addCase(deleteContact.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = state.items.filter(
+          contact => contact.id !== action.payload.id
+        );
+      })
+      .addCase(deleteContact.rejected, handleRejected)
+
+      .addCase(editContact.pending, handlePending)
+      .addCase(editContact.fulfilled, (state, action) => {
+        const contactIdx = state.items.findIndex(
+          contact => contact.id === action.payload.id
+        );
+        state.items.splice(contactIdx, 1, { ...action.payload });
+      })
+      .addCase(editContact.rejected, handleRejected)
+
+      .addCase(logout.fulfilled, state => {
+        state.items = [];
+      });
   },
 });
 
-export const authReducer = authSlice.reducer;
+export const contactsReducer = contactsSlice.reducer;
